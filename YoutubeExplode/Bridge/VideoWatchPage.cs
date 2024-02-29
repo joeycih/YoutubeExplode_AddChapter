@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using Lazy;
+using Newtonsoft.Json.Linq;
 using YoutubeExplode.Utils;
 using YoutubeExplode.Utils.Extensions;
+using YoutubeExplode.Videos.Chapters;
 
 namespace YoutubeExplode.Bridge;
 
@@ -112,6 +116,42 @@ internal partial class VideoWatchPage(IHtmlDocument content)
             ?.GetStringOrNull()
             ?.Pipe(Json.TryParse)
             ?.Pipe(j => new PlayerResponse(j));
+
+    [Lazy]
+    public IReadOnlyList<Chapter>? Chapters =>
+        content
+            .GetElementsByTagName("script")
+            .Select(e => e.Text())
+            .Select(s => Regex.Match(s, @"var\s+ytInitialData\s*=\s*(\{.*\})").Groups[1].Value)
+            .FirstOrDefault(s => !string.IsNullOrWhiteSpace(s))
+            ?.NullIfWhiteSpace()
+            ?.Pipe(Json.Extract)
+            .Pipe(Json.TryParse)
+            ?.GetPropertyOrNull("playerOverlays")
+            ?.GetPropertyOrNull("playerOverlayRenderer")
+            ?.GetPropertyOrNull("decoratedPlayerBarRenderer")
+            ?.GetPropertyOrNull("decoratedPlayerBarRenderer")
+            ?.GetPropertyOrNull("playerBar")
+            ?.GetPropertyOrNull("multiMarkersPlayerBarRenderer")
+            ?.GetPropertyOrNull("markersMap")
+            ?.EnumerateArray()
+            .FirstOrNull()
+            ?.GetPropertyOrNull("value")
+            ?.GetPropertyOrNull("chapters")
+            ?.EnumerateArray()
+            .Select(
+                j =>
+                    new Chapter(
+                        j.GetProperty("chapterRenderer")
+                            .GetProperty("title")
+                            .GetProperty("simpleText")
+                            .GetString() ?? "",
+                        j.GetProperty("chapterRenderer")
+                            .GetProperty("timeRangeStartMillis")
+                            .GetUInt64()
+                    )
+            )
+            .ToArray();
 }
 
 internal partial class VideoWatchPage

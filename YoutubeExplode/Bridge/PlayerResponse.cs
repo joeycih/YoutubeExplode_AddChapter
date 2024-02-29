@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using Lazy;
 using YoutubeExplode.Utils;
 using YoutubeExplode.Utils.Extensions;
+using YoutubeExplode.Videos.Chapters;
 
 namespace YoutubeExplode.Bridge;
 

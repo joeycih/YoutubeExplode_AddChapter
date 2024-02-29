@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using YoutubeExplode.Common;
+using YoutubeExplode.Videos.Chapters;
 
 namespace YoutubeExplode.Videos;
 
@@ -17,7 +18,8 @@ public class Video(
     TimeSpan? duration,
     IReadOnlyList<Thumbnail> thumbnails,
     IReadOnlyList<string> keywords,
-    Engagement engagement
+    Engagement engagement,
+    IReadOnlyList<Chapter>? chapters = null
 ) : IVideo
 {
     /// <inheritdoc />
@@ -57,6 +59,12 @@ public class Video(
     /// Engagement statistics for the video.
     /// </summary>
     public Engagement Engagement { get; } = engagement;
+
+    /// <summary>
+    /// Chapters for this video.
+    /// Will be null for playlists and searches.
+    /// </summary>
+    public IReadOnlyList<Chapter>? Chapters { get; } = chapters;
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

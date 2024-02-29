@@ -81,6 +81,8 @@ public class VideoClient(HttpClient http)
             .Concat(Thumbnail.GetDefaultSet(videoId))
             .ToArray();
 
+        var chapters = watchPage.Chapters;
+
         return new Video(
             videoId,
             title,
@@ -95,7 +97,8 @@ public class VideoClient(HttpClient http)
                 playerResponse.ViewCount ?? 0,
                 watchPage.LikeCount ?? 0,
                 watchPage.DislikeCount ?? 0
-            )
+            ),
+            chapters
         );
     }
 }
