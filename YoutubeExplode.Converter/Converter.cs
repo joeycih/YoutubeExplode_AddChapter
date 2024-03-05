@@ -21,10 +21,21 @@ internal partial class Converter(VideoClient videoClient, FFmpeg ffmpeg, Convers
         IReadOnlyList<StreamInput> streamInputs,
         IReadOnlyList<SubtitleInput> subtitleInputs,
         IProgress<double>? progress = null,
-        CancellationToken cancellationToken = default
+        CancellationToken cancellationToken = default,
+        ulong startTime = 0,
+        ulong endTime = 0
     )
     {
         var arguments = new ArgumentsBuilder();
+
+        if (startTime >= 0)
+        {
+            arguments.Add("-ss").Add(startTime);
+        }
+        if (endTime > 0)
+        {
+            arguments.Add("-to").Add(endTime);
+        }
 
         // Stream inputs
         foreach (var streamInput in streamInputs)
@@ -245,7 +256,9 @@ internal partial class Converter(VideoClient videoClient, FFmpeg ffmpeg, Convers
         IReadOnlyList<IStreamInfo> streamInfos,
         IReadOnlyList<ClosedCaptionTrackInfo> closedCaptionTrackInfos,
         IProgress<double>? progress = null,
-        CancellationToken cancellationToken = default
+        CancellationToken cancellationToken = default,
+        ulong startTime = 0,
+        ulong endTime = 0
     )
     {
         if (!streamInfos.Any())
@@ -290,7 +303,9 @@ internal partial class Converter(VideoClient videoClient, FFmpeg ffmpeg, Convers
                 streamInputs,
                 subtitleInputs,
                 conversionProgress,
-                cancellationToken
+                cancellationToken,
+                startTime,
+                endTime
             );
         }
         finally

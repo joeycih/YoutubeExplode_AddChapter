@@ -11,7 +11,9 @@ public class ConversionRequest(
     string ffmpegCliFilePath,
     string outputFilePath,
     Container container,
-    ConversionPreset preset
+    ConversionPreset preset,
+    ulong startTime = 0,
+    ulong endTime = 0
 )
 {
     /// <summary>
@@ -22,9 +24,18 @@ public class ConversionRequest(
         string ffmpegCliFilePath,
         string outputFilePath,
         ConversionFormat format,
-        ConversionPreset preset
+        ConversionPreset preset,
+        ulong startTime = 0,
+        ulong endTime = 0
     )
-        : this(ffmpegCliFilePath, outputFilePath, new Container(format.Name), preset) { }
+        : this(
+            ffmpegCliFilePath,
+            outputFilePath,
+            new Container(format.Name),
+            preset,
+            startTime,
+            endTime
+        ) { }
 
     /// <summary>
     /// Path to the FFmpeg CLI.
@@ -51,4 +62,14 @@ public class ConversionRequest(
     /// Encoder preset.
     /// </summary>
     public ConversionPreset Preset { get; } = preset;
+
+    /// <summary>
+    /// 截取开始时间
+    /// </summary>
+    public ulong startTime = startTime;
+
+    /// <summary>
+    /// 截取停止时间
+    /// </summary>
+    public ulong endTime = endTime;
 }

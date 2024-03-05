@@ -88,7 +88,9 @@ public static class ConversionExtensions
             streamInfos,
             closedCaptionTrackInfos,
             progress,
-            cancellationToken
+            cancellationToken,
+            request.startTime,
+            request.endTime
         );
     }
 

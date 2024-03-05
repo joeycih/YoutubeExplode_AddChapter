@@ -14,6 +14,8 @@ public class ConversionRequestBuilder(string outputFilePath)
     private string? _ffmpegCliFilePath;
     private Container? _container;
     private ConversionPreset _preset;
+    private ulong? _startTime;
+    private ulong? _endTime;
 
     private Container GetDefaultContainer() =>
         new(Path.GetExtension(outputFilePath).TrimStart('.').NullIfWhiteSpace() ?? "mp4");
@@ -65,6 +67,19 @@ public class ConversionRequestBuilder(string outputFilePath)
     }
 
     /// <summary>
+    /// Sets startTime and endTime
+    /// </summary>
+    /// <param name="endTime"></param>
+    /// <param name="startTime"></param>
+    /// <returns></returns>
+    public ConversionRequestBuilder SetTime(ulong startTime = 0, ulong endTime = 0)
+    {
+        _startTime = startTime;
+        _endTime = endTime;
+        return this;
+    }
+
+    /// <summary>
     /// Builds the resulting request.
     /// </summary>
     public ConversionRequest Build() =>
@@ -72,6 +87,8 @@ public class ConversionRequestBuilder(string outputFilePath)
             _ffmpegCliFilePath ?? FFmpeg.GetFilePath(),
             outputFilePath,
             _container ?? GetDefaultContainer(),
-            _preset
+            _preset,
+            _startTime ?? 0,
+            _endTime ?? 0
         );
 }
