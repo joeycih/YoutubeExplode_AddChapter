@@ -12,3 +12,4 @@ obj/
 TestResults/
 
 ffmpeg.exe
+/YoutubeExplode.Tests/down/ffmpeg.exe

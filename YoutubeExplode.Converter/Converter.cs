@@ -177,7 +177,12 @@ internal partial class Converter(VideoClient videoClient, FFmpeg ffmpeg, Convers
         // Output
         arguments.Add(filePath);
 
-        await ffmpeg.ExecuteAsync(arguments.Build(), progress, cancellationToken);
+        await ffmpeg.ExecuteAsync(
+            arguments.Build(),
+            progress,
+            cancellationToken,
+            endTime - startTime
+        );
     }
 
     private async ValueTask PopulateStreamInputsAsync(

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using YoutubeExplode.Converter;
 using YoutubeExplode.Demo.Cli.Utils;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
@@ -13,37 +15,38 @@ public static class Program
 {
     public static async Task Main()
     {
-        Console.Title = "YoutubeExplode Demo";
-
-        var youtube = new YoutubeClient();
-
-        // Get the video ID
-        Console.Write("Enter YouTube video ID or URL: ");
-        var videoId = VideoId.Parse(Console.ReadLine() ?? "");
-
-        // Get available streams and choose the best muxed (audio + video) stream
-        var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoId);
-        var streamInfo = streamManifest.GetMuxedStreams().TryGetWithHighestVideoQuality();
-        if (streamInfo is null)
-        {
-            // Available streams vary depending on the video and it's possible
-            // there may not be any muxed streams at all.
-            // See the readme to learn how to handle adaptive streams.
-            Console.Error.WriteLine("This video has no muxed streams.");
-            return;
-        }
-
-        // Download the stream
-        var fileName = $"{videoId}.{streamInfo.Container.Name}";
-
-        Console.Write(
-            $"Downloading stream: {streamInfo.VideoQuality.Label} / {streamInfo.Container.Name}... "
+        var progress = new Progress<double>(
+            (p) =>
+            {
+                var p1 = Convert.ToInt32(Math.Round(p, 2) * 100); //保留2位小数后*100变成整数
+                Console.WriteLine($"p:{p}__p1:{p1}");
+                //Console.WriteLine("progress:", p1);
+                if (p1 >= 100)
+                {
+                    Console.WriteLine($"下载转换完成");
+                }
+            }
         );
 
-        using (var progress = new ConsoleProgress())
-            await youtube.Videos.Streams.DownloadAsync(streamInfo, fileName, progress);
+        const string videoUrl = "https://www.youtube.com/watch?v=t-9KpD_drdk";
+        var youtube = new YoutubeClient();
+        var streamManifest = await youtube.Videos.Streams.GetManifestAsync("t-9KpD_drdk");
+        // Act
+        var video = await youtube.Videos.GetAsync(videoUrl);
 
-        Console.WriteLine("Done");
-        Console.WriteLine($"Video saved to '{fileName}'");
+        var stream = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+        var start = video.Chapters![2].TimeRangeStart / 1000;
+        var end = video.Chapters![3].TimeRangeStart / 1000;
+        await youtube.Videos.DownloadAsync(
+            new IStreamInfo[] { stream },
+            new ConversionRequestBuilder(
+                Path.Combine(AppContext.BaseDirectory, "down/02. 忘了你忘了我.mp3")
+            )
+                .SetFFmpegPath(Path.Combine(AppContext.BaseDirectory, "down/ffmpeg.exe"))
+                .SetContainer("mp3")
+                .SetTime(start, end)
+                .Build(),
+            progress
+        );
     }
 }

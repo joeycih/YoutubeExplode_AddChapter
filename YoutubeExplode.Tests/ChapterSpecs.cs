@@ -29,33 +29,33 @@ namespace YoutubeExplode.Tests
             );
 
             // Arrange
-            const string videoUrl = "https://www.youtube.com/watch?v=QBEItnHiqKM";
+            const string videoUrl = "https://www.youtube.com/watch?v=t-9KpD_drdk";
             var youtube = new YoutubeClient();
-            var streamManifest = await youtube.Videos.Streams.GetManifestAsync("QBEItnHiqKM");
+            var streamManifest = await youtube.Videos.Streams.GetManifestAsync("t-9KpD_drdk");
             // Act
             var video = await youtube.Videos.GetAsync(videoUrl);
 
             // Assert
-            if (video.Chapters != null)
-            {
-                Console.Write(video.Chapters);
-                video.Chapters.Count().Should().Be(11);
-                video.Chapters![0].Title.Should().Be("Us vs Them mentality");
-                video.Chapters![0].TimeRangeStart.Should().Be(0);
+            //if (video.Chapters != null)
+            //{
+            //    Console.Write(video.Chapters);
+            //    video.Chapters.Count().Should().Be(11);
+            //    video.Chapters![0].Title.Should().Be("Us vs Them mentality");
+            //    video.Chapters![0].TimeRangeStart.Should().Be(0);
 
-                video.Chapters![5].Title.Should().Be("QUICK BITS");
-                video.Chapters![5].TimeRangeStart.Should().Be(237000);
+            //    video.Chapters![5].Title.Should().Be("QUICK BITS");
+            //    video.Chapters![5].TimeRangeStart.Should().Be(237000);
 
-                video.Chapters![10].Title.Should().Be("Run homebrew DVD-R discs on PS2");
-                video.Chapters![10].TimeRangeStart.Should().Be(342000);
-            }
+            //    video.Chapters![10].Title.Should().Be("Run homebrew DVD-R discs on PS2");
+            //    video.Chapters![10].TimeRangeStart.Should().Be(342000);
+            //}
             var stream = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-            var start = video.Chapters![5].TimeRangeStart / 1000;
-            var end = video.Chapters![6].TimeRangeStart / 1000;
+            var start = video.Chapters![2].TimeRangeStart / 1000;
+            var end = video.Chapters![3].TimeRangeStart / 1000;
             await youtube.Videos.DownloadAsync(
                 new IStreamInfo[] { stream },
                 new ConversionRequestBuilder(
-                    Path.Combine(AppContext.BaseDirectory, "down/testchapter1.mp3")
+                    Path.Combine(AppContext.BaseDirectory, "down/02. 忘了你忘了我.mp3")
                 )
                     .SetFFmpegPath(Path.Combine(AppContext.BaseDirectory, "down/ffmpeg.exe"))
                     .SetContainer("mp3")

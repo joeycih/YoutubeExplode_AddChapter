@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\YoutubeExplode.Converter\YoutubeExplode.Converter.csproj" />
     <ProjectReference Include="..\YoutubeExplode\YoutubeExplode.csproj" />
   </ItemGroup>
 

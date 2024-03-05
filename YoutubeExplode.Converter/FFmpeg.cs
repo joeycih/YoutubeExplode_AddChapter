@@ -20,7 +20,8 @@ internal partial class FFmpeg(string filePath)
     public async ValueTask ExecuteAsync(
         string arguments,
         IProgress<double>? progress,
-        CancellationToken cancellationToken = default
+        CancellationToken cancellationToken = default,
+        ulong duration = 0
     )
     {
         var stdErrBuffer = new StringBuilder();
@@ -29,7 +30,8 @@ internal partial class FFmpeg(string filePath)
             // Collect error output in case of failure
             PipeTarget.ToStringBuilder(stdErrBuffer),
             // Collect progress output if requested
-            progress?.Pipe(CreateProgressRouter) ?? PipeTarget.Null
+            progress?.Pipe<IProgress<double>, ulong, PipeTarget>(duration, CreateProgressRouter)
+                ?? PipeTarget.Null
         );
 
         try
@@ -73,12 +75,17 @@ internal partial class FFmpeg
         // Otherwise fallback to just "ffmpeg" and hope it's on the PATH
         ?? "ffmpeg";
 
-    private static PipeTarget CreateProgressRouter(IProgress<double> progress)
+    private static PipeTarget CreateProgressRouter(IProgress<double> progress, ulong duration = 0)
     {
         var totalDuration = default(TimeSpan?);
+        if (duration > 0)
+        {
+            totalDuration = TimeSpan.FromSeconds(duration);
+        }
 
         return PipeTarget.ToDelegate(line =>
         {
+            Console.WriteLine(line);
             // Extract total stream duration
             if (totalDuration is null)
             {
